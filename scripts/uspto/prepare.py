@@ -1,6 +1,8 @@
 import re
+import glob
 import torch
 from torch.utils.data import Dataset
+import pandas as pd
 import xml.etree.ElementTree as ET
 
 def parse_patent(path):
@@ -27,6 +29,7 @@ def parse_patent(path):
 
     # extract the reaction SMILES and product SMILES
     for reaction in root.findall("reaction"):
+        reaction_smiles, smiles, paragraph = None, None, None
 
         # extract the reaction SMILES
         reaction_smiles = reaction.find("reactionSmiles").text
@@ -42,11 +45,17 @@ def parse_patent(path):
         # extract paragraph
         paragraph = reaction.find("source").find("paragraphText").text
 
-        results.append(
-            [reaction_smiles, smiles, paragraph]
-        )
+        if reaction_smiles is not None and smiles is not None and paragraph is not None:
+            results.append(
+                [reaction_smiles, smiles, paragraph]
+            )
 
-    return root
+    return results
 
-
-    
+if __name__ == "__main__":
+    import glob
+    paths = glob.glob("_data/grants/*/*.xml")
+    data = [parse_patent(path) for path in paths]
+    data = [item for sublist in data for item in sublist]
+    df = pd.DataFrame(data, columns=["reaction", "product", "paragraph"])
+    df.to_csv("uspto.csv", index=False)
