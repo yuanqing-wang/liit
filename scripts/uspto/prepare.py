@@ -29,10 +29,10 @@ def parse_patent(path):
 
     # extract the reaction SMILES and product SMILES
     for reaction in root.findall("reaction"):
-        reaction_smiles, smiles, paragraph = None, None, None
+        reaction, smiles, paragraph = None, None, None
 
         # extract the reaction SMILES
-        reaction_smiles = reaction.find("reactionSmiles").text
+        reaction = reaction.find("reactionSmiles").text
 
         # extract the product SMILES
         product = reaction.find("productList").find("product")
@@ -45,9 +45,9 @@ def parse_patent(path):
         # extract paragraph
         paragraph = reaction.find("source").find("paragraphText").text
 
-        if reaction_smiles is not None and smiles is not None and paragraph is not None:
+        if reaction is not None and smiles is not None and paragraph is not None:
             results.append(
-                [reaction_smiles, smiles, paragraph]
+                [reaction, smiles, paragraph]
             )
 
     return results
